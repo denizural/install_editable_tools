@@ -35,6 +35,7 @@ dry_run = args.dry_run
 base_dir = os.getcwd()
 base_dir = args.base_dir
 # correct the path string if it does not end with '/'
+base_dir = os.path.abspath(base_dir)
 if base_dir[-1] != os.path.sep:
     base_dir += os.path.sep
 
@@ -52,7 +53,14 @@ print(f"::: Installing the tools under the directory: {base_dir}\n")
 for tool, url in zip(tools, github_urls):
     print(f"::: Processing the tool: {tool}")
     
-    # step 1) clone the repo
+    # step 1) enter the directory
+
+    if dry_run:
+        print(f"    - Entering the directory: {base_dir}")
+    else: 
+        os.chdir(base_dir)
+
+    # step 2) clone the repo
     clone_command = f"git clone {url}"
 
     if dry_run: 
@@ -60,7 +68,7 @@ for tool, url in zip(tools, github_urls):
     else: 
         os.system(clone_command)
 
-    # step 2) enter the directory
+    # step 3) enter the tool's directory
     cwd = os.getcwd()
     new_path = f"{base_dir}{tool}{os.path.sep}"
 
@@ -69,7 +77,7 @@ for tool, url in zip(tools, github_urls):
     else: 
         os.chdir(new_path)
 
-    # step 3) install the tool here
+    # step 4) install the tool here
     install_command = f"python -m pip install -e ."
     if dry_run:
         print(f"    - Installing: {install_command}")
